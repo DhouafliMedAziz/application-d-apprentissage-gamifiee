@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
+use ImageKit\ImageKit;
 
 class ProfileController extends Controller
 {
@@ -18,9 +19,28 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
+        $user = $request->user();
+        $userData = $user;
+
+        if ($user instanceof \App\Models\Etudiant) {
+            $userData = $user->load([
+                'cours',
+                'classes',
+                'devoirs',
+                'niveau',
+                'eyeOptions',
+                'hatOptions',
+                'mouthOptions',
+                'colorOptions'
+            ]);
+        } elseif ($user instanceof \App\Models\Prof) {
+            $userData = $user->load(['classes']);
+        }
+
         return Inertia::render('Profile/Edit', [
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
+            'mustVerifyEmail' => $user instanceof MustVerifyEmail,
             'status' => session('status'),
+            'user' => $userData,
         ]);
     }
 
@@ -29,15 +49,41 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $user->fill($request->validated());
+
+        if ($request->hasFile('profile_picture')) {
+            $image = $request->file('profile_picture');
+            $imageKit = new ImageKit(
+                env('IMAGEKIT_PUBLIC_KEY'),
+                env('IMAGEKIT_PRIVATE_KEY'),
+                env('IMAGEKIT_URL_ENDPOINT')
+            );
+
+            $uploadFile = $imageKit->upload([
+                'file' => base64_encode(file_get_contents($image->getRealPath())),
+                'fileName' => uniqid('profile_') . '.' . $image->getClientOriginalExtension(),
+                'folder' => '/user-profiles'
+            ]);
+
+            $user->profile_picture_URL = $uploadFile->success ? $uploadFile->result->url : $user->profile_picture_URL;
         }
 
-        $request->user()->save();
+        if ($user instanceof \App\Models\Etudiant && $request->has('description')) {
+            $user->description = $request->description;
+            $user->grade = $request->grade;
+        } elseif ($user instanceof \App\Models\Prof && $request->has('description')) {
+            $user->description = $request->description;
+        }
 
-        return Redirect::route('profile.edit');
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
+
+        return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
     /**
@@ -46,7 +92,7 @@ class ProfileController extends Controller
     public function destroy(Request $request): RedirectResponse
     {
         $request->validate([
-            'password' => ['required', 'current_password'],
+            'mot_passe' => ['required', 'current_password'],
         ]);
 
         $user = $request->user();
