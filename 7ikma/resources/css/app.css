@@ -76,7 +76,7 @@ body {
     line-height: 20px;
     overflow-x:hidden;
     background:#f7f7f5;
-    padding:var(--gap-s)
+    height:100%;
   }
 a {
     color: inherit;
@@ -114,9 +114,9 @@ a {
    display: flex;
    position: relative;
      cursor:pointer;
- 
+
  }
-     
+
    .h-regular {
    letter-spacing: .01em;
    font-size: 1.5em;
@@ -147,19 +147,19 @@ a {
      font-weight: bold;
      box-shadow: 0 0 10px rgba(228, 67, 32, 0.7);
    }
-   
+
    .pixel-border {
      position: relative;
      border: 4px solid #151313;
      box-shadow: 5px 5px 0px #151313;
      transition: all 0.2s ease;
    }
-   
+
    .pixel-border:hover {
      transform: translate(-2px, -2px);
      box-shadow: 7px 7px 0px #151313;
    }
-   
+
    .pixel-button {
      background: #ff5734;
      color: #f2eee4;
@@ -168,7 +168,9 @@ a {
      transition: all 0.2s ease;
      text-transform: uppercase;
      font-weight: 700;
-     
+     text-align:center;
+
+
    }
    .light-pixel-button {
     background: #f7f7f5;
@@ -178,8 +180,10 @@ a {
     transition: all 0.2s ease;
     text-transform: uppercase;
     font-weight: bold;
+    text-align:center;
+
   }
-   
+
    .light-pixel-button:hover {
      transform: translate(-2px, -2px);
      box-shadow: 5px 5px 0px #151313;
@@ -188,23 +192,23 @@ a {
     transform: translate(-2px, -2px);
     box-shadow: 5px 5px 0px #151313;
   }
-  
+
    .stagger-delay-1 {
      animation-delay: 0.1s;
    }
-   
+
    .stagger-delay-2 {
      animation-delay: 0.2s;
    }
-   
+
    .stagger-delay-3 {
      animation-delay: 0.3s;
    }
-   
+
    .stagger-delay-4 {
      animation-delay: 0.4s;
    }
-   
+
    .progress-bar {
      width: 100%;
      height: 10px;
@@ -212,7 +216,7 @@ a {
      border-radius: 5px;
      overflow: hidden;
    }
-   
+
    .progress-bar-fill {
      height: 100%;
      background-color: #4da2ff;
@@ -238,8 +242,8 @@ a {
    display: flex;
    position: relative;
    overflow:hidden;
-   
-   
+
+
    }
    .button-icon{
    justify-content: center;
@@ -266,7 +270,7 @@ a {
    transition:
    transform .525s cubic-bezier(.525, 0, 0, 1);
    display: flex;
- 
+
  }
    .text-wrap{
    justify-content: center;
@@ -276,7 +280,7 @@ a {
    padding-right: .25em;
    display: flex;
    overflow:clip;
-   
+
    }
    .span-text-button{
    text-shadow: 0px 1.25em currentColor;
@@ -337,7 +341,7 @@ a {
    .hero-key{
    height:14.5em;
    width:14.5em;
-   position:absolute;  
+   position:absolute;
    }
    .hero-key-svg {
    justify-content: center;
@@ -345,8 +349,8 @@ a {
    width: 100%;
    height: 100%;
  }
- 
- 
+
+
  .key-gradient {
    translate: none;
    rotate: none;
@@ -363,7 +367,7 @@ a {
    .hero-key.L{
    top:10.5em;
    left:-1.25em;
- 
+
    }
      .hero-key.E{
    top:17em;
@@ -391,10 +395,10 @@ a {
    height: 100%;
    margin-right: -2px;
    transition:
-   
+
   background-color .3s;
    display: flex;
- 
+
  }
  .w-inline-block {
    max-width: 100%;
@@ -407,7 +411,7 @@ a {
    height: 100%;
    display: flex;
  }
- 
+
  .nav-link__text-wrap {
    justify-content: center;
    align-items: center;
@@ -425,10 +429,10 @@ a {
    text-shadow: 0px 1.25em currentColor;
    transition: transform 0.45s var(--cubic-default);
    }
- 
+
    .nav-link:hover .nav-link__text-wrap h1{
      transform: translate(0px, -1.25em);
- 
+
    }
      .home-hover:hover{
      background:#4da2ff !important;
@@ -450,7 +454,7 @@ a {
      }
    .mask-clip-path {
      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-   
+
      }
      .bottom {
       grid-column-gap:
@@ -462,7 +466,7 @@ a {
     .home-intro__content{
       width: 100%;
       max-width: 34.375em;
-      
+
     }
     .accent-color{
       color:#4da2ff;
@@ -596,4 +600,229 @@ nowrap;
   width:fit-content;
   padding:10px;
 }
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
 
+  @keyframes slideUp {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  @keyframes elevate {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-30px); opacity: 0; }
+    100% { transform: translateY(-30px); opacity: 0; }
+  }
+
+  @keyframes descend {
+    0% { transform: translateY(-30px); opacity: 0; }
+    50% { transform: translateY(-30px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .animate-slideUp {
+    animation: slideUp 0.4s ease-out;
+  }
+
+  .animate-elevate {
+    animation: elevate 0.5s ease-in-out forwards;
+  }
+
+  .animate-descend {
+    animation: descend 0.5s ease-in-out forwards;
+  }
+.leaderboard {
+    width: 400px;
+
+    margin: 0 auto;
+    font-weight:bold;
+  }
+
+  .leaderboard-header {
+    background: conic-gradient(
+        white 0deg 5deg,
+        #f7f1ea 5deg 12deg,
+        white 12deg 18deg,
+        #f7f1ea 18deg 27deg,
+        white 27deg 35deg,
+        #f7f1ea 35deg 43deg,
+        white 43deg 50deg,
+        #f7f1ea 50deg 60deg,
+        white 60deg 66deg,
+        #f7f1ea 66deg 75deg,
+        white 75deg 85deg,
+        #f7f1ea 85deg 92deg,
+        white 92deg 105deg,
+        #f7f1ea 105deg 115deg,
+        white 115deg 122deg,
+        #f7f1ea 122deg 130deg,
+        white 130deg 138deg,
+        #f7f1ea 138deg 150deg,
+        white 150deg 157deg,
+        #f7f1ea 157deg 165deg,
+        white 165deg 175deg,
+        #f7f1ea 175deg 185deg,
+        white 185deg 190deg,
+        #f7f1ea 190deg 198deg,
+        white 198deg 210deg,
+        #f7f1ea 210deg 220deg,
+        white 220deg 228deg,
+        #f7f1ea 228deg 240deg,
+        white 240deg 250deg,
+        #f7f1ea 250deg 262deg,
+        white 262deg 270deg,
+        #f7f1ea 270deg 280deg,
+        white 280deg 290deg,
+        #f7f1ea 290deg 305deg,
+        white 305deg 313deg,
+        #f7f1ea 313deg 325deg,
+        white 325deg 332deg,
+        #f7f1ea 332deg 345deg,
+        white 345deg 360deg
+      );
+      border-radius:40px;
+        width:400px;
+        height:400px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .leaderboard-header h1 {
+    margin: 0;
+    font-size: 2rem;
+    color: #333;
+  }
+
+  .leaderboard-list {
+    padding: 10px;
+    margin-top:-100px;
+    z-index:100;
+    position:relative;
+    background:white;
+    width:400px;
+  }
+
+  .leaderboard-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+
+  }
+
+.rank-1 {
+    background-color: #ade28a;
+  }
+
+.rank-2 {
+    background-color: #f1c071;
+  }
+
+  .rank-3 {
+    background-color: #f2989b;
+  }
+
+  .default {
+    border:0;
+    background:#f0f0f0;
+  }
+
+  .left-section {
+    display: flex;
+    align-items: center;
+  }
+
+  .rank-badge {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+  }
+
+
+
+
+
+  .avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-left: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  /* User Name */
+  .user-name {
+    margin-left: 10px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    flex: 1; /* Takes remaining space */
+  }
+
+  .right-section {
+    display: flex;
+    align-items: center;
+  }
+
+  .score-badge {
+    width: 100px;
+    height: 50px;
+    color:#151513;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .score-text {
+    color: #151513;
+    font-weight: bold;
+    font-size: 1rem;
+    }
+
+  /* Rank Indicator */
+  .rank-indicator {
+    margin-left: 10px;
+    font-size: 1.2rem;
+  }
+
+  .rank-indicator.up {
+    color: #28a745; /* Green */
+  }
+
+  .rank-indicator.down {
+    color: #dc3545; /* Red */
+  }
+
+  /* Responsive Design */
+  @media (max-width: 600px) {
+    .leaderboard-entry {
+      padding: 8px;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+    }
+
+    .score-badge {
+      width: 40px;
+      height: 40px;
+    }
+
+    .user-name {
+      font-size: 1rem;
+    }
+  }

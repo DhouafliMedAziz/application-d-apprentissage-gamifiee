@@ -14,7 +14,7 @@ class EtudiantFactory extends Factory
     public function definition(): array
     {
         return [
-            'utilisateur_id'    => (string) Str::uuid(),
+            'utilisateur_id'    => Utilisateur::inRandomOrder()->first()->utilisateur_id,
             'description'       => $this->faker->paragraph(),
             'institut_education' => $this->faker->word(),
             'niveau_id'   => Niveau::inRandomOrder()->first()->id,

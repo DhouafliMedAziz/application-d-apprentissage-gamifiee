@@ -22,7 +22,8 @@ class Cours extends Model
         'status',
         'max_points',
         'niveau_cours',
-        'note_moyenne_du_cours'
+        'note_moyenne_du_cours',
+        'prof_id'
     ];
 
 
@@ -31,7 +32,6 @@ class Cours extends Model
     return [
             'prix'=>'integer',
             'duree'=>'integer',
-            'status'=>['free' , 'paied'],
             'max_points'=>'integer',
             'note_moyenne_du_cours'=>'decimal:2'
 
@@ -45,7 +45,7 @@ class Cours extends Model
         return $this->belongsTo(
             Prof::class,
             'prof_id',
-            'id'
+            'prof_id'
         );
     }
     /**
@@ -64,10 +64,10 @@ class Cours extends Model
     public function etudiant(){
         return $this->belongsToMany(
             Etudiant::class,
-            'inscpretion',
+            'inscreption',
             'cours_id',
             'etudiant_id')
-            ->withPivot(['date','taux_de_progression','notation','commentaire'])->withTimestamps();
+            ->withPivot(['date','taux_de_progression','date_notation','prix','notation','commentaire'])->withTimestamps();
     }
 
     public function Matiere()

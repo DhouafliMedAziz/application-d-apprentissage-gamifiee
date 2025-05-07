@@ -17,6 +17,7 @@ class Devoir extends Model
         'points',
         'max_score',
         'date_final',
+        'lesson_id'
     ];
 
     protected function casts(): array
@@ -39,4 +40,28 @@ class Devoir extends Model
             ->withPivot(['score', 'date_submission'])
             ->withTimestamps();
     }
+
+
+    /**
+     * Get all of the quiz for the Devoir
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function quiz(): HasMany
+    {
+        return $this->hasMany(Quiz::class, 'devoir_id', 'devoir_id');
+    }
+    /**
+     * Get the lesson that owns the Devoir
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function lesson(): BelongsTo
+    {
+        return $this->belongsTo(Lesson::class, 'lesson_id', 'lesson_id');
+    }
+
+
+
+
 }

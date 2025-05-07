@@ -10,6 +10,8 @@ return new class extends Migration {
     {
         Schema::create('devoirs', function (Blueprint $table) {
             $table->increments('devoir_id')->primary();
+            $table->unsignedInteger('lesson_id');
+            $table->foreign('lesson_id')->references("lesson_id")->on('lessons')->cascadeOnDelete();
             $table->string('titre');
             $table->integer('points');
             $table->integer('max_score');

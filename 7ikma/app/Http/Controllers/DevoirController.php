@@ -30,8 +30,7 @@ class DevoirController extends Controller
             'points'            => 'required|integer',
             'max_score'         => 'required|integer',
             'date_final'        => 'required|date',
-            'etudiant_ids'      => 'nullable|array',
-            'etudiant_ids.*'    => 'exists:etudiants,etudiant_id',
+
         ]);
 
         $devoir = Devoir::create($validated);
@@ -64,8 +63,6 @@ class DevoirController extends Controller
             'points'            => 'sometimes|required|integer',
             'max_score'         => 'sometimes|required|integer',
             'date_final'        => 'sometimes|required|date',
-            'etudiant_ids'      => 'sometimes|array',
-            'etudiant_ids.*'    => 'exists:etudiants,etudiant_id',
         ]);
 
         $devoir = Devoir::findOrFail($id);
@@ -112,29 +109,40 @@ class DevoirController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      */
-    public function garde(Request $request, $id)
+    public function answer(Request $request, Devoir $devoir, Quiz $quiz)
     {
+        $etudiant = auth()->user();
+
         $validated = $request->validate([
-            'etudiant_id' => 'required|exists:etudiants,etudiant_id',
-            'score'        => 'required|integer',
+            'choix_id' => 'required|exists:choix,choix_id',
         ]);
 
-        $devoir = Devoir::findOrFail($id);
+        $choix = $quiz->choix()->findOrFail($validated['choix_id']);
 
-        if (! $devoir->etudiants()->wherePivot('etudiant_id', $validated['etudiant_id'])->exists()) {
-            return response()->json([
-                'message' => 'Student has not submitted this devoir.'
-            ], Response::HTTP_BAD_REQUEST);
+        $scoreIncrement = 0;
+
+        if ($choix->status) {
+            $scoreIncrement = $quiz->note;
         }
 
-        $devoir->etudiants()->updateExistingPivot($validated['etudiant_id'], [
-            'score' => $validated['score'],
-        ]);
+        DB::transaction(function () use ($etudiant, $devoir, $scoreIncrement) {
+            $pivotData = $etudiant->devoirs()->where('devoir_id', $devoir->devoir_id)->first();
 
-        return response()->json([
-            'message'  => 'Score recorded successfully.',
-            'devoir'   => $devoir->load('etudiants')
-        ], Response::HTTP_OK);
+            if (!$pivotData) {
+                $etudiant->devoirs()->attach($devoir->devoir_id, [
+                    'score' => $scoreIncrement,
+                    'date_submission' => now()
+                ]);
+            } else {
+                $newScore = $pivotData->pivot->score + $scoreIncrement;
+                $etudiant->devoirs()->updateExistingPivot($devoir->devoir_id, [
+                    'score' => $newScore,
+                    'date_submission' => now()
+                ]);
+            }
+        });
+
+        return response()->json(['message' => 'Answer submitted successfully']);
     }
 
 

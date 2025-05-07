@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\Gate;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Chapitres;
@@ -43,7 +43,6 @@ class ChapitresController extends Controller
 
         $validated = $request->validate($rules);
 
-        // If nested, enforce given course_id
         if ($cours_id) {
             $validated['cours_id'] = $cours_id;
         }
@@ -79,6 +78,8 @@ class ChapitresController extends Controller
         ]);
 
         $chapitre = Chapitres::findOrFail($id);
+        Gate::authorize('manage-chapitre', $chapitre);
+
         $chapitre->update($validated);
 
         return response()->json(
@@ -93,6 +94,9 @@ class ChapitresController extends Controller
     public function destroy($id)
     {
         $chapitre = Chapitres::findOrFail($id);
+
+        Gate::authorize('manage-chapitre', $chapitre);
+
         $chapitre->delete();
 
         return response()->json(null, Response::HTTP_NO_CONTENT);

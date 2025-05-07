@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use App\Models\Cours;
 use Illuminate\Http\Response;
 
@@ -16,7 +17,6 @@ class CoursController extends Controller
     {
         $cours = Cours::with(['prof', 'chapiters', 'etudiant', 'Matiere'])
                        ->paginate($request->get('per_page', 15));
-
         return response()->json($cours, Response::HTTP_OK);
     }
 
@@ -31,19 +31,22 @@ class CoursController extends Controller
             'prix'                      => 'required|integer',
             'duree'                     => 'required|integer',
             'status'                    => 'required|in:free,paied',
-            'max_points'                => 'nullable|integer',
+
             'niveau_cours'              => 'nullable|string',
-            'note_moyenne_du_cours'     => 'nullable|numeric',
             'prof_id'                   => 'required|exists:profs,id',
-            'matiere_ids'               => 'nullable|array',
-            'matiere_ids.*'             => 'exists:matieres,id',
         ]);
+        switch($validated['niveau_cours']){
+            case "easy":
+                $validated['max_points']=100;
+            case "medium":
+                $validated['max_points']=200;
+            case "hard":
+                $validated['max_points']=300;
+        }
 
         $cours = Cours::create($validated);
 
-        if (!empty($validated['matiere_ids'])) {
-            $cours->Matiere()->attach($validated['matiere_ids']);
-        }
+
 
         return response()->json($cours->load(['prof', 'chapiters', 'etudiant', 'Matiere']), Response::HTTP_CREATED);
     }
@@ -64,6 +67,7 @@ class CoursController extends Controller
      */
     public function update(Request $request, $id)
     {
+
         $validated = $request->validate([
             'titre'                     => 'sometimes|required|string|max:255',
             'desciption'                => 'sometimes|nullable|string',
@@ -79,6 +83,7 @@ class CoursController extends Controller
         ]);
 
         $cours = Cours::findOrFail($id);
+        Gate::authorize('manage-cours', $cours);
         $cours->update($validated);
 
         if (array_key_exists('matiere_ids', $validated)) {
@@ -94,8 +99,126 @@ class CoursController extends Controller
     public function destroy($id)
     {
         $cours = Cours::findOrFail($id);
+        Gate::authorize('manage-cours', $cours);
         $cours->delete();
 
         return response()->json(null, Response::HTTP_NO_CONTENT);
     }
+
+
+
+    public function newCourses()
+    {
+        $oneWeekAgo = now()->subWeek();
+
+        $courses = Cours::where('created_at', '>=', $oneWeekAgo)->where('status','=','free')
+                        ->orderBy('created_at', 'desc')
+                        ->take(12)
+                        ->get();
+
+        return response()->json($courses);
+    }
+
+    /**
+     * Get the most popular courses by enrollment in the last week
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function mostPopularCourses()
+    {
+        $oneWeekAgo = now()->subWeek();
+
+        $courses = Cours::whereHas('etudiant', function ($query) use ($oneWeekAgo) {
+                            $query->where('inscreption.created_at', '>=', $oneWeekAgo);
+                        })
+                        ->withCount(['etudiant as recent_enrollments' => function ($query) use ($oneWeekAgo) {
+                            $query->where('inscreption.created_at', '>=', $oneWeekAgo);
+                        }])->where('status','=','free')
+                        ->orderBy('recent_enrollments', 'desc')
+                        ->take(12)
+                        ->get();
+
+        return response()->json($courses);
+    }
+    /**
+     * Get recommended courses for the authenticated student based on
+     * total interactions (inscriptions + devoir submissions) in the last week.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function recommendedCourses()
+    {
+        $oneWeekAgo = now()->subWeek();
+        $courses = Cours::withCount(['etudiant as recent_enrollments' => function ($q) use ($oneWeekAgo) {
+                            $q->where('inscreption.created_at', '>=', $oneWeekAgo);
+                        }])
+                        ->get();
+
+        $courses = $courses->map(function ($course) use ($oneWeekAgo) {
+            $devoirSubmissions = DB::table('devoir_etudiant')
+                ->join('devoirs', 'devoir_etudiant.devoir_id', '=', 'devoirs.devoir_id')
+                ->join('lessons', 'devoirs.lesson_id', '=', 'lessons.lesson_id')
+                ->join('chapiters', 'lessons.chapiter_id', '=', 'chapiters.chapiter_id')
+                ->where('chapiters.cours_id', $course->cours_id)
+                ->where('devoir_etudiant.date_submission', '>=', $oneWeekAgo)
+                ->count();
+
+            $course->interactions = $course->recent_enrollments + $devoirSubmissions;
+            return $course;
+        });
+        $top = $courses->sortByDesc('interactions')->take(12)->values();
+
+        return response()->json($top);
+    }
+
+/**
+     * Attach one or multiple matières to a cours.
+     *
+     * @param  Request  $request
+     * @param  Cours    $cours
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function attach(Request $request, Cours $cours)
+    {
+        $validated = $request->validate([
+            'matiere_ids'   => 'required|array',
+            'matiere_ids.*' => 'exists:matieres,matiere_id',
+        ]);
+
+        Gate::authorize('manage-cours', $cours);
+        $cours->matiere()->syncWithoutDetaching($validated['matiere_ids']);
+
+        return response()->json([
+            'message'     => 'Matières attachées avec succès',
+            'matiere_ids' => $validated['matiere_ids'],
+        ], Response::HTTP_OK);
+    }
+
+    /**
+     * Detach one or multiple matières from a cours.
+     *
+     * @param  Request  $request
+     * @param  Cours    $cours
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function detach(Request $request, Cours $cours)
+    {
+        $validated = $request->validate([
+            'matiere_ids'   => 'required|array',
+            'matiere_ids.*' => 'exists:matieres,matiere_id',
+        ]);
+        Gate::authorize('manage-cours', $cours);
+
+        $cours->matiere()->detach($validated['matiere_ids']);
+
+        return response()->json([
+            'message'     => 'Matières détachées avec succès',
+            'matiere_ids' => $validated['matiere_ids'],
+        ], Response::HTTP_OK);
+    }
+
+public function coursCount() {
+return response()->json(["count"=>Cours::count()]);
+}
+
 }

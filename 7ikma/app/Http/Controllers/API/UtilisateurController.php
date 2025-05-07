@@ -24,10 +24,7 @@ class UtilisateurController extends Controller
      */
     public function index(Request $request)
     {
-        // Apply filters if provided
         $query = Utilisateur::query();
-
-        // Filter by role if specified
         if ($request->has('role')) {
             if ($request->role === 'etudiant') {
                 $query = Etudiant::query();
@@ -36,7 +33,6 @@ class UtilisateurController extends Controller
             }
         }
 
-        // Apply search term if provided
         if ($request->has('search')) {
             $searchTerm = $request->search;
             $query->where(function($q) use ($searchTerm) {
@@ -45,7 +41,6 @@ class UtilisateurController extends Controller
             });
         }
 
-        // Pagination and sorting
         $perPage = $request->input('per_page', 15);
         $sortBy = $request->input('sort_by', 'created_at');
         $sortOrder = $request->input('sort_order', 'desc');
@@ -82,7 +77,6 @@ class UtilisateurController extends Controller
             ], 422);
         }
 
-        // Handle profile picture if provided
         $profilePictureUrl = null;
         if ($request->hasFile('profile_picture')) {
             $image = $request->file('profile_picture');
@@ -101,7 +95,6 @@ class UtilisateurController extends Controller
             $profilePictureUrl = $uploadFile->success ? $uploadFile->result->url : null;
         }
 
-        // Create base user
         if ($request->role === 'etudiant') {
             $user = new Etudiant();
             $user->description = $request->description ?? null;
@@ -112,7 +105,6 @@ class UtilisateurController extends Controller
             $user->note_moyenne = $request->note_moyenne ?? 0;
         }
 
-        // Set common attributes
         $user->nom_d_utilisateur = $request->nom_d_utilisateur;
         $user->email = $request->email;
         $user->mot_passe = Hash::make($request->mot_passe);
@@ -122,9 +114,7 @@ class UtilisateurController extends Controller
 
         $user->save();
 
-        // Load related data for specific user types
         if ($user instanceof Etudiant) {
-            // Handle avatar options if provided
             if ($request->has('eye_options')) {
                 $user->eyeOptions()->sync($request->eye_options);
             }
@@ -137,8 +127,6 @@ class UtilisateurController extends Controller
             if ($request->has('color_options')) {
                 $user->colorOptions()->sync($request->color_options);
             }
-
-            // Assign to niveau if provided
             if ($request->has('niveau_id')) {
                 $user->niveau_id = $request->niveau_id;
                 $user->save();
@@ -212,14 +200,13 @@ class UtilisateurController extends Controller
             ], 422);
         }
 
-        // Update base fields if provided
         if ($request->filled('nom_d_utilisateur')) {
             $user->nom_d_utilisateur = $request->nom_d_utilisateur;
         }
 
         if ($request->filled('email')) {
             $user->email = $request->email;
-            $user->email_verified_at = null; // Require email verification again
+            $user->email_verified_at = null;
         }
 
         if ($request->filled('mot_passe')) {
@@ -234,7 +221,6 @@ class UtilisateurController extends Controller
             $user->coins = $request->coins;
         }
 
-        // Handle profile picture upload if provided
         if ($request->hasFile('profile_picture')) {
             $image = $request->file('profile_picture');
             $imageKit = new ImageKit(
@@ -252,7 +238,6 @@ class UtilisateurController extends Controller
             $user->profile_picture_URL = $uploadFile->success ? $uploadFile->result->url : $user->profile_picture_URL;
         }
 
-        // Update type-specific fields
         if ($user instanceof Etudiant) {
             if ($request->filled('description')) {
                 $user->description = $request->description;
@@ -266,7 +251,6 @@ class UtilisateurController extends Controller
                 $user->niveau_id = $request->niveau_id;
             }
 
-            // Handle avatar customization options if provided
             if ($request->has('eye_options')) {
                 $user->eyeOptions()->sync($request->eye_options);
             }

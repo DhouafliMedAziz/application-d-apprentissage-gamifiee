@@ -112,7 +112,7 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
           <div
             className={cn(
               "flex flex-row justify-start gap-4 pl-4",
-              "mx-auto max-w-7xl", 
+              "mx-auto max-w-7xl",
             )}
           >
             {items.map((item, index) => (
@@ -171,6 +171,7 @@ export const Card = ({
   index: number;
   layout?: boolean;
 }) => {
+    console.log(card)
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const { onCardClose, currentIndex } = useContext(CarouselContext);
@@ -211,7 +212,7 @@ export const Card = ({
         style={{border:"1px solid #151513"}}
         className="relative  z-10 flex h-50 w-56 flex-col items-start p-8 pt-8 pr-8 justify-start overflow-hidden rounded-3xl bg-white md:h-[30rem] md:w-96 "
       >
-      
+
         <BlurImage
           src={card.src}
           alt={card.title}
@@ -219,7 +220,7 @@ export const Card = ({
           className="absolute top-0  left-3 right-3  z-10 object-cover"
         />
           <div className="relative z-40">
-         
+
           <motion.p
             layoutId={layout ? `title-${card.title}` : undefined}
             className="mt-[90%] max-w-xs text-left  text-l  [text-wrap:balance] text-[#131315] md:text-3xl"
@@ -258,7 +259,6 @@ export const BlurImage = ({
       height={height}
       loading="lazy"
       decoding="async"
-      blurDataURL={typeof src === "string" ? src : undefined}
       alt={alt ? alt : "Background of a beautiful view"}
       {...rest}
     />

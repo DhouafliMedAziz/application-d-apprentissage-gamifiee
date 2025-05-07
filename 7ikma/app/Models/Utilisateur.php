@@ -25,8 +25,8 @@ class Utilisateur extends Authenticatable
         'profile_picture_URL',
         'points_totales',
         'coins',
-      //  'institut_education',
-       // 'pays'
+       'institut_education',
+        'pays'
     ];
 
     // Hidden on serialization
@@ -56,14 +56,6 @@ class Utilisateur extends Authenticatable
     {
         return $this->mot_passe;
     }
-    public function classes()
-{
-    return $this->belongsToMany(
-        Classe::class,
-        'classe_etudiant',
-        'etudiant_id',   // this model’s FK on pivot
-        'id_classe'      // related model’s FK on pivot
-    )->withTimestamps();
-}
+
 }
 

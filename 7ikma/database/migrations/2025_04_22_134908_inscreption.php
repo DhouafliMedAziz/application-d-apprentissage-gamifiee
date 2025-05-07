@@ -21,8 +21,10 @@ return new class extends Migration {
                   ->cascadeOnDelete();
             $table->primary(['etudiant_id','cours_id']);
             $table->dateTime('date')->now();
-            $table->decimal('notation', 1, 2)->default(0.0);
+            $table->decimal('notation', 2, 2)->default(0.0)->nullable();
             $table->decimal('taux_de_progression', 3, 2)->nullable()->default(0.0);
+            $table->dateTime('date_notation')->nullable();
+            $table->decimal('prix', 5, 2)->nullable()->default(0.0);
             $table->Text("commentaire")->nullable();
             $table->timestamps();
         });

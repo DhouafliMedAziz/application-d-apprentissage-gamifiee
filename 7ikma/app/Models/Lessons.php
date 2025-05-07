@@ -34,6 +34,12 @@ class Lessons extends Model
         );
     }
 
+    public function devoir()
+    {
+        return $this->hasMany(Devoir::class,'lesson_id','lesson_id');
+    }
+
+
 
 
 }

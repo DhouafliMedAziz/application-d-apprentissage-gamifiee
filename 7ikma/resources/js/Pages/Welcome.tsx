@@ -4,8 +4,204 @@ import Rate from "@/Components/rate";
 import { COLORS, STYLE } from "@/style/colors";
 
 
+import Contact from "@/Components/contactus"
+import { useEffect, useState } from "react";
+
+interface course {
+
+    src: string;
+    title: string;
+    category: string;
+    rate:number
+    content: React.ReactNode;
+
+};
 
 export default function Landing(){
+
+
+    const [count, setCount] = useState(null);
+    const[courscount,setCourscount] =useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [newdata,setnewdata]= useState(null);
+  const [newCoursData,setNewCoursData]=useState<course[]>([]);
+  const [popularCoursData,setpopularCoursData]=useState<course[]>([]);
+  const [recommendedCours,setRecommendedCours]=useState<course[]>([]);
+    const[maiters,steMatieres] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetch('/api/v1/subjects/count', {
+      headers: {
+        'Accept': 'application/json',
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Server error: ${res.statusText}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setCount(data.subjects);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError(err.message);
+      });
+      fetch('/api/v1/coursCount', {
+        headers: {
+          'Accept': 'application/json',
+        },
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`Server error: ${res.statusText}`);
+          }
+          return res.json();
+        })
+        .then((data) => {
+            setCourscount(data.count);
+        })
+        .catch((err) => {
+          console.error(err);
+          setError(err.message);
+          setLoading(false);
+        });
+
+  fetch('/api/v1/newCours', {
+    headers: {
+      'Accept': 'application/json',
+    },
+  })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`Server error: ${res.statusText}`);
+      }
+      return res.json();
+    })
+    .then((data) => {
+        let cdata:course[]=[];
+        data.map((e:any)=>{
+            let c:course={
+                category:"",
+                title:e.titre,
+                src:"./img/default-course.png",
+                content:<DummyContent/>,
+                rate:parseInt(e.note_moyenne_de_cours)
+
+            };
+
+            cdata.push(c);
+        });
+        cdata.map((card, index) => (
+            console.log(index+":"+card.title)
+           ));
+        setNewCoursData(cdata);
+    })
+    .catch((err) => {
+      console.error(err);
+      setError(err.message);
+      setLoading(false);
+    });
+    fetch('/api/v1/recommendedCours', {
+        headers: {
+          'Accept': 'application/json',
+        },
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`Server error: ${res.statusText}`);
+          }
+          return res.json();
+        })
+        .then((data) => {
+            let cdata:course[]=[];
+            data.map((e:any)=>{
+                let c:course={
+                    category:"",
+                    title:e.titre,
+                    src:"./img/default-course.png",
+                    content:<DummyContent/>,
+                    rate:parseInt(e.note_moyenne_de_cours)
+
+                };
+
+                cdata.push(c);
+            });
+            cdata.map((card, index) => (
+                console.log(index+":"+card.title)
+               ));
+            setRecommendedCours(cdata);
+        })
+        .catch((err) => {
+          console.error(err);
+          setError(err.message);
+          setLoading(false);
+        });
+        fetch('/api/v1/popularCours', {
+            headers: {
+              'Accept': 'application/json',
+            },
+          })
+            .then((res) => {
+              if (!res.ok) {
+                throw new Error(`Server error: ${res.statusText}`);
+              }
+              return res.json();
+            })
+            .then((data) => {
+                let cdata:course[]=[];
+                data.map((e:any)=>{
+                    let c:course={
+                        category:"",
+                        title:e.titre,
+                        src:"./img/default-course.png",
+                        content:<DummyContent/>,
+                        rate:parseInt(e.note_moyenne_de_cours)
+
+                    };
+
+                    cdata.push(c);
+                });
+                cdata.map((card, index) => (
+                    console.log(index+":"+card.title)
+                   ));
+                setpopularCoursData(cdata);
+            })
+            .catch((err) => {
+              console.error(err);
+              setError(err.message);
+              setLoading(false);
+            });
+            fetch('/api/v1/matieres', {
+                headers: {
+                  'Accept': 'application/json',
+                },
+              })
+                .then((res) => {
+                  if (!res.ok) {
+                    throw new Error(`Server error: ${res.statusText}`);
+                  }
+                  return res.json();
+                })
+                .then((data) => {
+                    let cdata:string[]=[];
+                    data.map((e:any)=>{
+
+
+                        cdata.push(e.nom);
+                    });
+
+                    steMatieres(cdata);
+                })
+                .catch((err) => {
+                  console.error(err);
+                  setError(err.message);
+                  setLoading(false);
+                });
+}, []);
   const DummyContent = () => {
     return (
       <>
@@ -60,7 +256,7 @@ export default function Landing(){
       content: <DummyContent />,
       rate:4.7
     },
-   
+
     {
       category: "Product",
       title: "Maps for your iPhone 15 Pro Max.",
@@ -83,6 +279,15 @@ export default function Landing(){
       rate:4.6
     },
   ];
+
+
+
+
+
+
+
+
+
   const people = [
     {
       id: 1,
@@ -129,8 +334,10 @@ export default function Landing(){
   ];
 
 
-
-  const cards = data.map((card, index) => (
+  newCoursData.map((card, index) => (
+   console.log(index+":"+card.title)
+  ));
+  const cards = newCoursData.map((card, index) => (
     <Card key={card.src} card={card} index={index} />
   ));
 
@@ -139,8 +346,11 @@ export default function Landing(){
 
 
 
+
+
+
   return(
-    <div className="min-h-screen relative" style={{ backgroundColor:"#f7f7f5", fontFamily: 'dimis' ,color:COLORS.primary,fontSize:'14px',fontWeight:400,lineHeight:'20px'}}>  
+    <div className="min-h-screen relative" style={{ backgroundColor:"#f7f7f5", fontFamily: 'dimis' ,color:COLORS.primary,fontSize:'14px',fontWeight:400,lineHeight:'20px'}}>
 
       <header className="fixed  z-[100] w-full" style={{inset:`0% 0% auto`}}>
       <nav className="flex p-0  w-full m-auto h-[4.75em]" style={{translate: "none",
@@ -150,30 +360,31 @@ export default function Landing(){
         <div className="flex" style={{paddingLeft:STYLE.padding_page,transition:STYLE.animation_default,background:COLORS.light,flex:1,justifyContent:'flex-start',alignItems:'center'}}>
 
           <a className="w-[28.75rem] "  style={{textAlign:'center',fontFamily:'dimis',fontSize:'2.5em',color:COLORS.primary}}>
-          BiblioPedia <span style={{ fontSize:'0.5em'}}>Griding knowledge</span>
+
+              <span className=" font-bold">Learn<span className="text-[#ff5437]">ify</span></span> <span style={{ fontSize:'0.5em'}}>Grinding knowledge</span>
           </a>
-          <a className="nav-link size-56">
+          <a href="#home" className="nav-link size-56">
           <div className="nav-link__inner"> <div className="nav-link__text-wrap">
             <h1>home</h1>
-            </div> 
+            </div>
           </div>
         </a>
-        <a className="nav-link size-56">
+        <a href="#services" className="nav-link size-56">
           <div className="nav-link__inner"> <div className="nav-link__text-wrap">
             <h1>Services</h1>
-            </div> 
+            </div>
           </div>
         </a>
-        <a className="nav-link size-56">
+        <a href="#subjects" className="nav-link size-56">
           <div className="nav-link__inner"> <div className="nav-link__text-wrap">
             <h1>Courses</h1>
-            </div> 
+            </div>
           </div>
         </a>
-        <a className="nav-link size-56">
+        <a href="#contact" className="nav-link size-56">
           <div className="nav-link__inner"> <div className="nav-link__text-wrap">
             <h1>Contact us</h1>
-            </div> 
+            </div>
           </div>
         </a>
         <a className="nav-link size-44">
@@ -188,11 +399,11 @@ export default function Landing(){
         </a>
 
         </div>
-        
+
         <div>
 
         </div>
-       
+
       </nav>
       </header>
       <main className="w-full h-auto" style={{clipPath:'inset(0vh 0vw)',overflow:'overflow'}}>
@@ -246,7 +457,7 @@ export default function Landing(){
                       </h1>
                       <div className="h-[7em] p-6 m-4">
                       <h1 style={{fontSize:"6em",fontWeight:900}}>
-                        +40
+                        +{count}
                       </h1>
                       </div>
 
@@ -260,7 +471,7 @@ export default function Landing(){
                       </h1>
                       <div className="h-[7em] p-6 m-4">
                       <h1 style={{fontSize:"6em",fontWeight:900}}>
-                        +120
+                        +{courscount}
                       </h1>
                       </div>
 
@@ -286,11 +497,11 @@ export default function Landing(){
 
           </section>
             <section id="services">
-            <div className=" mb-[2.25em] bg-[#fccc42]   flex flex-row rounded-3xl m-12 " >
+            <div className=" mb-[2.25em] bg-[#fccc42]   flex flex-row rounded-3xl m-12 h-1/2 " >
               <div className=" p-12 flex-col gap-5 w-[70%]">
-              <h1 className="home-hero__heading" style={{fontFamily:'dimis',fontSize:"7em",fontWeight:700,letterSpacing: "-.06em",lineHeight: 1.1}}>
+              <h1 className="home-hero__heading" style={{fontFamily:'dimis',fontSize:"6em",fontWeight:700,letterSpacing: "-.06em",lineHeight: 1.1}}>
                 <span >Upgrade your  </span>
-                
+
                <span className="text-white">Skills</span> <br/>   with   <span className="text-white">FREE</span> online courses
               </h1>
               <h2 className="h-regular w-[70%] mb-[2.25em]">             Ready to gain in-demand skills to kickstart your career? The Learnify Click Start program offers 20 FREE online courses to help you get your first experience in your chosen profession
@@ -302,6 +513,7 @@ export default function Landing(){
               <img className=" w-full" src="./img/puzzel.png"></img>
             </div>
             </div>
+
             </section>
             <section id="courses">
             <div className="home-hero__col " style={{paddingLeft:'7em'}} >
@@ -401,18 +613,21 @@ cards
             </section>
 
 
+            <Contact/>
+
+
 
       </main>
 
 
 
 
- 
-    
-    
-    
-    
-    
+
+
+
+
+
+
     </div>
   );
 }

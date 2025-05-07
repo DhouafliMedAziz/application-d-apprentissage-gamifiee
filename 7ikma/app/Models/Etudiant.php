@@ -50,7 +50,7 @@ class Etudiant extends Utilisateur
             'inscpretion',
             'etudiant_id',
             'cours_id')
-            ->withPivot(['date','taux_de_progression','notation','commentaire'])->withTimestamps();
+            ->withPivot(['date','taux_de_progression','date_notation','prix','notation','commentaire'])->withTimestamps();
     }
     public function classes()
     {
@@ -73,4 +73,11 @@ class Etudiant extends Utilisateur
             ->withPivot(['score', 'date_submission'])
             ->withTimestamps();
     }
+    public function battles()
+{
+    return $this->belongsToMany(Battle::class, 'battle_etudiant')
+                ->withPivot('score', 'joined_at')
+                ->withTimestamps();
+}
+
 }

@@ -13,6 +13,7 @@ class Quiz extends Model
 
     protected $fillable = [
         'devoir_id',
+        'note',
         'question',
     ];
 
@@ -24,6 +25,7 @@ class Quiz extends Model
             'devoir_id'
         );
     }
+
     public function choix()
     {
         return $this->hasMany(

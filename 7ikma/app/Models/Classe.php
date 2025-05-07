@@ -17,6 +17,7 @@ class Classe extends Model
         'nom_de_classe',
         'date_de_creation',
         'section',
+        'prof_id'
     ];
 
     protected $casts = [
@@ -27,7 +28,7 @@ class Classe extends Model
         return $this->belongsTo(
             Prof::class,
             'prof_id',
-            'id'
+            'prof_id'
         );
     }
 
@@ -40,4 +41,7 @@ class Classe extends Model
             'etudiant_id'    // related model’s FK on pivot
         )->withTimestamps();
     }
+
+
+
 }

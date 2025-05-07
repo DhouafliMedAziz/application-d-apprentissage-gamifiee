@@ -9,7 +9,7 @@ class Matiere extends Model
 {
     /** @use HasFactory<\Database\Factories\MatiereFactory> */
     use HasFactory;
-    protected $table ='Matiere';
+    protected $table ='matiers';
     protected $primaryKey = 'Matiere_id';
     protected $KeyType = 'int';
      public $incrementing = false;
